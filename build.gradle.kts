@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.5.0"
     kotlin("kapt") version "1.5.20"
 }
 group = "me.rober"
@@ -21,6 +21,6 @@ dependencies {
     annotationProcessor("com.squareup.moshi:moshi-kotlin-codegen:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
 }
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
