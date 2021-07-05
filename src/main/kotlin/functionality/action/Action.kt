@@ -1,9 +1,9 @@
 package functionality.action
 
-import Answer
 import functionality.race.RaceManager
-import model.Race
+import model.dto.RaceDTO
 import repository.ActionRepository
+import utils.Answer
 
 abstract class Action(
         private val actionRepository: ActionRepository
@@ -11,7 +11,7 @@ abstract class Action(
 
     private val raceManager = RaceManager()
 
-    fun isRaceWeek(): Answer<Race> {
+    fun isRaceWeek(): Answer<RaceDTO?> {
         val raceCalendar = actionRepository.getRaceCalendar()
         val races = raceCalendar.races
 

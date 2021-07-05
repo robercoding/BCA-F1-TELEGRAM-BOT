@@ -1,9 +1,5 @@
 package functionality.bot
 
-import com.github.kotlintelegrambot.Bot
-import com.github.kotlintelegrambot.entities.ChatId
-import model.Race
-
 //fun Bot.sendMessage(chatId: Long, message: String){
 //    println("Send MESSAGE and chatid is $chatId")
 //    this.sendMessage(ChatId.fromId(chatId), text = "$message")
@@ -20,20 +16,20 @@ import model.Race
 //}
 
 
-fun Bot.notifyRaceWeek(chatId: Long, race: Race) {
-    val chat = ChatId.Id(chatId)
-
-//    http://e00-marca.uecdn.es/assets/multimedia/imagenes/2020/05/07/15888780078997.jpg
-    this.sendPhoto(
-            chat,
-            race.layoutCircuitUrl,
-            "RACE WEEK!!" +
-                    "A continuación detalles de la carrera:\" +\n" +
-                    "            \"\\n País: ${race.country}\" +\n" +
-                    "            \"\\n Circuito: ${race.nameCircuit}\" +\n" +
-                    "            \"\\n Clasificación: ${race.dateQualifying}\" +\n" +
-                    "            \"\\n Carrera: ${race.dateRace}"
-    )
+//fun Bot.notifyRaceWeek(chatId: Long, race: RaceOutdated) {
+//    val chat = ChatId.Id(chatId)
+//
+////    http://e00-marca.uecdn.es/assets/multimedia/imagenes/2020/05/07/15888780078997.jpg
+//    this.sendPhoto(
+//            chat,
+//            race.layoutCircuitUrl,
+//            "RACE WEEK!!" +
+//                    "A continuación detalles de la carrera:\" +\n" +
+//                    "            \"\\n País: ${race.country}\" +\n" +
+//                    "            \"\\n Circuito: ${race.nameCircuit}\" +\n" +
+//                    "            \"\\n Clasificación: ${race.dateQualifying}\" +\n" +
+//                    "            \"\\n Carrera: ${race.dateRace}"
+//    )
 
 //    this.sendMessage(chat, )
 
@@ -45,4 +41,4 @@ fun Bot.notifyRaceWeek(chatId: Long, race: Race) {
 //            "\n Circuito: ${functionality.race.layoutCircuitUrl}" +
 //            "\n Clasificación: ${functionality.race.dateQualifying}" +
 //            "\n Carrera: ${functionality.race.dateRace}")
-}
+//}

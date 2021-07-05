@@ -1,12 +1,12 @@
 package functionality.bot
 
 import Idiom
-import TelegramBot
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
+import config.TelegramBot
 import functionality.action.AutomaticAction
 import functionality.action.AutomaticActionEvent
 import functionality.action.ManualAction
@@ -17,7 +17,7 @@ import help.TelegramUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import model.Race
+import model.RaceEntity
 import repository.ActionRepository
 import repository.service.RedditService
 import sendHelp
@@ -46,8 +46,6 @@ class BotHandler {
                         "/hamilton" -> botActions.sendMessage(chatId, "HAMILTON PRESSED THE MAGIC BUTTON")
                         "/nextrace" -> handleManualActions(ManualActionEvent.GetNextRace(chatId))
                         "/nr" -> handleManualActions(ManualActionEvent.GetNextRace(chatId))
-//                        "/rw" -> botHandler.sendPhotoByUrl(chatId, "https://e00-marca.uecdn.es/assets/multimedia/imagenes/2020/05/07/15888780078997.jpg", "RACE WEEK!")
-//                        "/raceweek" -> botHandler.sendPhotoByUrl(chatId, "https://e00-marca.uecdn.es/assets/multimedia/imagenes/2020/05/07/15888780078997.jpg")
                         "/autRemindRaceWeek" -> handleAutomaticActions(AutomaticActionEvent.RemindRaceWeek(chatId))
                         "/autRecordarSemanaCarrera" -> handleAutomaticActions(AutomaticActionEvent.RemindRaceWeek(chatId))
                         "/autDisableReminderRaceWeek" -> handleAutomaticActions(AutomaticActionEvent.DisableRemindRaceWeek(chatId))
@@ -131,31 +129,33 @@ class BotHandler {
         val races = actionRepository.getRaceCalendar().races
         val race = raceManager.getNextRaceWeek(races) // RaceManager should be called RaceHelper instead
 
-        if (race.country == "Empty") {
-            bot.sendMessage(chatId, "No hay más carreras esta temporada :(")
-        } else {
-            bot.sendPhoto(chatId, race.layoutCircuitUrl, formatTextNextRace(race))
-        }
+//        if (race.country == "Empty") {
+//            bot.sendMessage(chatId, "No hay más carreras esta temporada :(")
+//        } else {
+//            bot.sendPhoto(chatId, race.layoutCircuitUrl, formatTextNextRace(race))
+//        }
     }
 
     //TODO FORMATTEXTNEXTRACE SHOULD BE IN A LanguageHelper class to translate it according to the selected language
-    private fun formatTextNextRace(race: Race): String {
-        if (race.country == "Empty") {
-            return "No hay más carreras esta temporada... :("
-        }
+    private fun formatTextNextRace(race: RaceEntity): String {
+//        if (race.grandPrix == "Empty") {
+//            return "No hay más carreras esta temporada... :("
+//        }
 
         var captionSprintQualifying = ""
         if (race.isSprintQualifying) {
-            captionSprintQualifying = "\n Sprint Qualifying: ${formatToTimezoneGMT(race.dateSprintQualifying)}"
+            captionSprintQualifying =
+                "\n Sprint Qualifying: ${formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateSprintQualifying))}"
         }
 
-        return "La siguiente carrera será el día ${DateUtils.formatDayAndMonthToTimezoneGMT(race.dateRace)} en el ${race.nameGrandPrix}" +
-                "\n\n Detalles importantes:" +
-                "\n País: ${race.country}" +
-                "\n Circuito: ${race.nameCircuit}" +
-                captionSprintQualifying +
-                "\n Clasificación: ${DateUtils.formatToTimezoneGMT(race.dateQualifying)}" +
-                "\n Carrera: ${DateUtils.formatToTimezoneGMT(race.dateRace)}"
+        return ""
+//        return "La siguiente carrera será el día ${DateUtils.formatDayAndMonthToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateRace))} en el ${race.nameGrandPrix}" +
+//                "\n\n Detalles importantes:" +
+//                "\n País: ${race.country}" +
+//                "\n Circuito: ${race.nameCircuit}" +
+//                captionSprintQualifying +
+//                "\n Clasificación: ${DateUtils.formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateQualifying))}" +
+//                "\n Carrera: ${DateUtils.formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateRace))}"
     }
 
     //TODO STOPTIMER SHOULD BE REMOVE FROM DB AND CANCEL IT

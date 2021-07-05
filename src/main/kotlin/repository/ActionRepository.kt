@@ -1,7 +1,7 @@
 package repository
 
 import com.github.kotlintelegrambot.entities.ChatId
-import model.RaceCalendar
+import model.dto.CalendarRaceYearDTO
 import java.util.*
 
 class ActionRepository {
@@ -11,9 +11,9 @@ class ActionRepository {
         return true
     }
 
-    fun getRaceCalendar(): RaceCalendar {
+    fun getRaceCalendar(): CalendarRaceYearDTO {
         //TODO implement db to get raceCalendar saved in database
         //return db.getRaceCalendar()
-        return RaceCalendar(listOf())
+        return CalendarRaceYearDTO(1, 2021, listOf(), 0)
     }
 }

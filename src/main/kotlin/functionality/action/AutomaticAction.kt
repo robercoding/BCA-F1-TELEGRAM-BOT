@@ -1,21 +1,22 @@
 package functionality.action
 
-import Answer
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
 import functionality.notify.NotifyRace
 import functionality.schedule.ScheduleUtils
 import repository.ActionRepository
+import utils.Answer
 
+//TODO rename to ScheduleActions to make it more clear?
 class AutomaticAction(
-        private val actionRepository: ActionRepository
+    private val actionRepository: ActionRepository
 ) : Action(actionRepository) {
 
     fun activateScheduleThursday(bot: Bot, chatId: ChatId) {
         val timerTask = ScheduleUtils.getTimerTask {
             val answer = isRaceWeek()
             if (answer is Answer.Yes) {
-                NotifyRace.notifyRaceWeek(bot, chatId, answer.data)
+                NotifyRace.notifyRaceWeek(bot, chatId, answer.data!!)
             }
         }
 
