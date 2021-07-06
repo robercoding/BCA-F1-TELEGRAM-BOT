@@ -9,7 +9,7 @@ import utils.Answer
 
 //TODO rename to ScheduleActions to make it more clear?
 class AutomaticAction(
-    private val actionRepository: ActionRepository
+    actionRepository: ActionRepository
 ) : Action(actionRepository) {
 
     fun activateScheduleThursday(bot: Bot, chatId: ChatId) {
