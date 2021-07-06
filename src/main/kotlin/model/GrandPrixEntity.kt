@@ -1,5 +1,6 @@
 package model
 
+import model.dto.GrandPrixDTO
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -18,3 +19,9 @@ class GrandPrixEntity(id: EntityID<Int>) : IntEntity(id) {
 
     var name by GrandPrixTable.name
 }
+
+fun GrandPrixEntity.toDTO(): GrandPrixDTO = GrandPrixDTO(
+    id = this.id.value,
+    circuit = this.circuit.toDTO(),
+    name = this.name
+)

@@ -1,5 +1,7 @@
 package model
 
+import help.toDate
+import model.dto.RaceDTO
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -32,3 +34,14 @@ class RaceEntity(id: EntityID<Int>) : IntEntity(id) {
     var isSprintQualifying by RaceTable.isSprintQualifying
     var dateSprintQualifying by RaceTable.dateSprintQualifying
 }
+
+fun RaceEntity.toDTO(): RaceDTO = RaceDTO(
+    id = this.id.value,
+    grandPrix = this.grandPrix.toDTO(),
+    weekRace = this.weekRace,
+    dateRace = this.dateRace.toDate(),
+    dateQualifying = this.dateQualifying.toDate(),
+    season = this.calendarRaceYear.season,
+    isSprintQualifying = this.isSprintQualifying,
+    dateSprintQuailifying = this.dateSprintQualifying.toDate()
+)

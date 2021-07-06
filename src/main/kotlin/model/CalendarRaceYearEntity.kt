@@ -1,5 +1,6 @@
 package model
 
+import model.dto.CalendarRaceYearDTO
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -16,4 +17,12 @@ class CalendarRaceYearEntity(id: EntityID<Int>) : IntEntity(id) {
     val races by RaceEntity referrersOn RaceTable.calendarRaceId //referrersOn must have val
 
     var season by CalendarRaceYearTable.season
+}
+
+fun CalendarRaceYearEntity.toDTO(): CalendarRaceYearDTO {
+    return CalendarRaceYearDTO(
+        yearId = this.id.value,
+        season = this.season,
+        races = this.races.map { raceEntity -> raceEntity.toDTO() }
+    )
 }

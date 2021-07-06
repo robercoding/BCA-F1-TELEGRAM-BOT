@@ -4,7 +4,7 @@ import java.util.*
 
 data class RaceDTO(
     var id: Int = -1,
-    val calendarRaceYear: CalendarRaceYearDTO,
+    val season: Int,
     val grandPrix: GrandPrixDTO,
     val weekRace: Int,
     val dateQualifying: Date,
