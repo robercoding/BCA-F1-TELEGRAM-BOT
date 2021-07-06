@@ -6,13 +6,13 @@ import repository.ActionRepository
 import utils.Answer
 
 abstract class Action(
-        private val actionRepository: ActionRepository
+    protected val actionRepository: ActionRepository
 ) {
 
     private val raceManager = RaceManager()
 
     fun isRaceWeek(): Answer<RaceDTO?> {
-        val raceCalendar = actionRepository.getRaceCalendar()
+        val raceCalendar = actionRepository.getCalendarRace()
         val races = raceCalendar.races
 
         if (raceManager.isThisWeekRaceWeek(races)) {

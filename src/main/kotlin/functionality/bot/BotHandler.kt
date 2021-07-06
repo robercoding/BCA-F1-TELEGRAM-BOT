@@ -14,13 +14,13 @@ import functionality.action.ManualActionEvent
 import functionality.race.RaceManager
 import help.DateUtils
 import help.TelegramUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import model.RaceEntity
 import repository.ActionRepository
 import repository.service.RedditService
 import sendHelp
+import utils.Answer
+import utils.CalendarRaceYearNotAvailable
 import java.util.*
 
 class BotHandler {
@@ -40,6 +40,7 @@ class BotHandler {
                     println(message.text)
                     val chatId = TelegramUtils.convertToChatId(message.chat.id)
                     val text = message.text ?: ""
+
                     when (text.toLowerCase()) {
                         "/alonso" -> botActions.sendMessage(chatId, "EL MAGIC FIAUUUUUUM ALPINEE!")
                         "/vettel" -> botActions.sendMessage(chatId, "Ferrarí le destrozó la vidas")
@@ -51,6 +52,7 @@ class BotHandler {
                         "/autDisableReminderRaceWeek" -> handleAutomaticActions(AutomaticActionEvent.DisableRemindRaceWeek(chatId))
                         "/autDesactivarRecordatorioSemanaCarrera" -> handleAutomaticActions(AutomaticActionEvent.DisableRemindRaceWeek(chatId))
                         "/reddit" -> getHotPost(chatId)
+                        "/calendar" -> handleManualActions(ManualActionEvent.GetCalendar(chatId))
                         "/help" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpES" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpEN" -> bot.sendHelp(message.chat.id, Idiom.EN)
@@ -63,9 +65,34 @@ class BotHandler {
     }
 
     private fun handleManualActions(manualActionEvent: ManualActionEvent) {
-        when (manualActionEvent) {
-            is ManualActionEvent.GetNextRace -> {
-                getNextRace(chatId = manualActionEvent.chatId)
+        val chatId: ChatId = manualActionEvent.chatId
+        val handler = CoroutineExceptionHandler { coroutineContext, throwable ->
+            when (throwable) {
+                is CalendarRaceYearNotAvailable -> {
+                    bot.sendMessage(chatId, "Sorry calendar is not available.")
+                }
+                else -> return@CoroutineExceptionHandler
+            }
+        }
+
+        runBlocking(handler) {
+            when (manualActionEvent) {
+                is ManualActionEvent.GetNextRace -> {
+                    getNextRace(chatId = manualActionEvent.chatId)
+                }
+
+                is ManualActionEvent.GetCalendar -> {
+                    val answer = manualAction.getCalendarRace()
+                    when (answer) {
+                        is Answer.Yes -> {
+                            bot.sendMessage(chatId, "${answer.data}")
+                        }
+
+                        is Answer.Not -> {
+                            bot.sendMessage(chatId, "Coudln't get the calendar, sorry.")
+                        }
+                    }
+                }
             }
         }
     }
@@ -126,7 +153,7 @@ class BotHandler {
 //    }
 
     private fun getNextRace(chatId: ChatId) {
-        val races = actionRepository.getRaceCalendar().races
+        val races = actionRepository.getCalendarRace().races
         val race = raceManager.getNextRaceWeek(races) // RaceManager should be called RaceHelper instead
 
 //        if (race.country == "Empty") {
