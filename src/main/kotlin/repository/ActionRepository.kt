@@ -2,10 +2,13 @@ package repository
 
 import com.github.kotlintelegrambot.entities.ChatId
 import model.CalendarRaceYearEntity
+import model.RaceEntity
 import model.dto.CalendarRaceYearDTO
+import model.dto.RaceDTO
 import model.toDTO
 import org.jetbrains.exposed.sql.transactions.transaction
-import utils.CalendarRaceYearNotAvailable
+import utils.CalendarRaceYearNotFound
+import utils.RaceDetailsNotFound
 import java.util.*
 
 class ActionRepository {
@@ -16,10 +19,16 @@ class ActionRepository {
     }
 
     fun getCalendarRace(season: Int = 2021): CalendarRaceYearDTO {
-        //TODO implement db to get raceCalendar saved in database
         return transaction {
             val calendarRaceYearEntity = CalendarRaceYearEntity.findById(season)
-            return@transaction calendarRaceYearEntity?.toDTO() ?: throw CalendarRaceYearNotAvailable()
+            return@transaction calendarRaceYearEntity?.toDTO() ?: throw CalendarRaceYearNotFound()
+        }
+    }
+
+    fun getRaceDetails(raceId: Long): RaceDTO {
+        return transaction {
+            val raceEntity = RaceEntity.findById(raceId)
+            return@transaction raceEntity?.toDTO() ?: throw RaceDetailsNotFound()
         }
     }
 }

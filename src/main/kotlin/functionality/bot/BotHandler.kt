@@ -19,8 +19,9 @@ import model.RaceEntity
 import repository.ActionRepository
 import repository.service.RedditService
 import sendHelp
-import utils.Answer
-import utils.CalendarRaceYearNotAvailable
+import utils.CalendarRaceYearNotFound
+import utils.RaceDetailsNotFound
+import utils.StringUtils
 import java.util.*
 
 class BotHandler {
@@ -41,6 +42,12 @@ class BotHandler {
                     val chatId = TelegramUtils.convertToChatId(message.chat.id)
                     val text = message.text ?: ""
 
+                    if (StringUtils.containsRaceWord(text)) {
+                        val raceId = StringUtils.getRaceId(text)
+                        handleManualActions(ManualActionEvent.GetRaceDetails(raceId = raceId, chatId = chatId))
+                        return@text
+                    }
+
                     when (text.toLowerCase()) {
                         "/alonso" -> botActions.sendMessage(chatId, "EL MAGIC FIAUUUUUUM ALPINEE!")
                         "/vettel" -> botActions.sendMessage(chatId, "Ferrarí le destrozó la vidas")
@@ -49,8 +56,16 @@ class BotHandler {
                         "/nr" -> handleManualActions(ManualActionEvent.GetNextRace(chatId))
                         "/autRemindRaceWeek" -> handleAutomaticActions(AutomaticActionEvent.RemindRaceWeek(chatId))
                         "/autRecordarSemanaCarrera" -> handleAutomaticActions(AutomaticActionEvent.RemindRaceWeek(chatId))
-                        "/autDisableReminderRaceWeek" -> handleAutomaticActions(AutomaticActionEvent.DisableRemindRaceWeek(chatId))
-                        "/autDesactivarRecordatorioSemanaCarrera" -> handleAutomaticActions(AutomaticActionEvent.DisableRemindRaceWeek(chatId))
+                        "/autDisableReminderRaceWeek" -> handleAutomaticActions(
+                            AutomaticActionEvent.DisableRemindRaceWeek(
+                                chatId
+                            )
+                        )
+                        "/autDesactivarRecordatorioSemanaCarrera" -> handleAutomaticActions(
+                            AutomaticActionEvent.DisableRemindRaceWeek(
+                                chatId
+                            )
+                        )
                         "/reddit" -> getHotPost(chatId)
                         "/calendar" -> handleManualActions(ManualActionEvent.GetCalendar(chatId))
                         "/help" -> bot.sendHelp(message.chat.id, Idiom.ES)
@@ -68,9 +83,8 @@ class BotHandler {
         val chatId: ChatId = manualActionEvent.chatId
         val handler = CoroutineExceptionHandler { coroutineContext, throwable ->
             when (throwable) {
-                is CalendarRaceYearNotAvailable -> {
-                    bot.sendMessage(chatId, "Sorry calendar is not available.")
-                }
+                is CalendarRaceYearNotFound -> bot.sendMessage(chatId, "Sorry calendar is not available.")
+                is RaceDetailsNotFound -> bot.sendMessage(chatId, "Sorry, race details are not available")
                 else -> return@CoroutineExceptionHandler
             }
         }
@@ -82,16 +96,14 @@ class BotHandler {
                 }
 
                 is ManualActionEvent.GetCalendar -> {
-                    val answer = manualAction.getCalendarRace()
-                    when (answer) {
-                        is Answer.Yes -> {
-                            bot.sendMessage(chatId, "${answer.data}")
-                        }
+                    val message = manualAction.getCalendarRace()
+                    bot.sendMessage(chatId, message)
 
-                        is Answer.Not -> {
-                            bot.sendMessage(chatId, "Coudln't get the calendar, sorry.")
-                        }
-                    }
+                }
+
+                is ManualActionEvent.GetRaceDetails -> {
+                    val message = manualAction.getRaceDetails(manualActionEvent.raceId)
+                    bot.sendMessage(chatId, message)
                 }
             }
         }

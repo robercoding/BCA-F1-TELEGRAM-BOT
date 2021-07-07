@@ -2,16 +2,16 @@ package model
 
 import help.toDate
 import model.dto.RaceDTO
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import java.time.LocalDateTime
 
 
-object RaceTable : IntIdTable("Race", "race_id") {
+object RaceTable : LongIdTable("Race", "race_id") {
     val calendarRaceId = reference("calendar_race_year_id", CalendarRaceYearTable, onDelete = ReferenceOption.CASCADE)
     val grandPrixId = reference("grand_prix_id", GrandPrixTable, onDelete = ReferenceOption.CASCADE)
 
@@ -22,8 +22,8 @@ object RaceTable : IntIdTable("Race", "race_id") {
     val dateSprintQualifying = datetime("date_sprint_qualifying").default(LocalDateTime.of(1, 1, 1, 1, 1, 1))
 }
 
-class RaceEntity(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<RaceEntity>(RaceTable)
+class RaceEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<RaceEntity>(RaceTable)
 
     var calendarRaceYear by CalendarRaceYearEntity referencedOn RaceTable.calendarRaceId
     var grandPrix by GrandPrixEntity referencedOn RaceTable.grandPrixId
