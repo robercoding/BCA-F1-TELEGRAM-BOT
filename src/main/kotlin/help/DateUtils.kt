@@ -7,39 +7,30 @@ import java.time.ZoneId
 import java.util.*
 
 object DateUtils {
-    private val calendar = Calendar.getInstance()
-
-    fun formatToTimezoneGMT(date: Date): String {
-        val dateFormat = SimpleDateFormat("dd-MM H:mm a")
-        dateFormat.timeZone = TimeZone.getTimeZone("GMT")
-
-        return dateFormat.format(date)
-    }
-
-    fun formatDayAndMonthToTimezoneGMT(date: Date): String {
-        val dateFormat = SimpleDateFormat("dd-MM")
-        dateFormat.timeZone = TimeZone.getTimeZone("GMT")
-        return dateFormat.format(date)
-    }
-
-    fun formatHourAndMinuteToTimezoneGMT(date: Date): String {
-        val dateFormat = SimpleDateFormat("H:mm a")
-        dateFormat.timeZone = TimeZone.getTimeZone("GMT")
-        return dateFormat.format(date)
-    }
+    val calendar = Calendar.getInstance()
 
     fun getWeekDayOfYear(date: Date): Int {
         calendar.time = date
         return calendar.get(Calendar.WEEK_OF_YEAR)
     }
+}
 
-    fun convertToDateFromLocalDateTime(localDateTime: LocalDateTime): Date {
-        return Timestamp.valueOf(localDateTime)
-    }
+fun Date.getWeekDayOfYear(): Int {
+    val calendar = DateUtils.calendar
+    calendar.time = this
+    return calendar.get(Calendar.WEEK_OF_YEAR)
+}
 
-    fun getTimeFromLocalDateTime(localDateTime: LocalDateTime): Long {
-        return Timestamp.valueOf(localDateTime).time
-    }
+fun Date.formatMonthDay(locale: Locale = Locale.US): String {
+    val dateMonthDayYear = SimpleDateFormat("MMMM dd, YYYY", locale)
+    return "${dateMonthDayYear.format(this)}"
+}
+
+fun Date.formatMonthDayHourMinuteAndPreferredTimezone(timeZone: String = "GMT", locale: Locale = Locale.US): String {
+    val dateMonthDayYear = SimpleDateFormat("MMMM dd, YYYY", locale)
+    val dateHour = SimpleDateFormat("H:mm")
+    dateHour.timeZone = TimeZone.getTimeZone(timeZone)
+    return "${dateMonthDayYear.format(this)} at ${dateHour.format(this)}"
 }
 
 fun Date.toLocalDateTime(): LocalDateTime {

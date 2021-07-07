@@ -6,13 +6,13 @@ import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
+import com.github.kotlintelegrambot.entities.ParseMode
 import config.TelegramBot
 import functionality.action.AutomaticAction
 import functionality.action.AutomaticActionEvent
 import functionality.action.ManualAction
 import functionality.action.ManualActionEvent
 import functionality.race.RaceManager
-import help.DateUtils
 import help.TelegramUtils
 import kotlinx.coroutines.*
 import model.RaceEntity
@@ -98,14 +98,14 @@ class BotHandler {
 
                 is ManualActionEvent.GetCalendar -> {
                     val botSendMessage = manualAction.getCalendarRace() as BotOutcome.SendMessage
-                    bot.sendMessage(chatId, botSendMessage.message)
+                    bot.sendMessage(chatId, botSendMessage.message, ParseMode.MARKDOWN_V2)
 
                 }
 
                 is ManualActionEvent.GetRaceDetails -> {
                     val botPhotoByUrl =
                         manualAction.getRaceDetails(manualActionEvent.raceId) as BotOutcome.SendPhotoByUrl
-                    bot.sendPhoto(chatId, botPhotoByUrl.photoUrl, botPhotoByUrl.message)
+                    bot.sendPhoto(chatId, botPhotoByUrl.photoUrl, botPhotoByUrl.message, ParseMode.MARKDOWN_V2)
                 }
             }
         }
@@ -185,8 +185,8 @@ class BotHandler {
 
         var captionSprintQualifying = ""
         if (race.isSprintQualifying) {
-            captionSprintQualifying =
-                "\n Sprint Qualifying: ${formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateSprintQualifying))}"
+//            captionSprintQualifying =
+//                "\n Sprint Qualifying: ${formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateSprintQualifying))}"
         }
 
         return ""
@@ -219,10 +219,6 @@ class BotHandler {
         } else {
             bot.sendMessage(chatId, "No tienes ningún recordatorio")
         }
-    }
-
-    private fun formatToTimezoneGMT(date: Date): String {
-        return DateUtils.formatToTimezoneGMT(date)
     }
 
     //TODO THIS SHOULD BE BOTH, AUTOMATIC AND MANUAL Maybe create a gwclass speciailized for this?
