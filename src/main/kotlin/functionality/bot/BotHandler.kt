@@ -19,6 +19,7 @@ import model.RaceEntity
 import repository.ActionRepository
 import repository.service.RedditService
 import sendHelp
+import utils.BotOutcome
 import utils.CalendarRaceYearNotFound
 import utils.RaceDetailsNotFound
 import utils.StringUtils
@@ -96,14 +97,15 @@ class BotHandler {
                 }
 
                 is ManualActionEvent.GetCalendar -> {
-                    val message = manualAction.getCalendarRace()
-                    bot.sendMessage(chatId, message)
+                    val botSendMessage = manualAction.getCalendarRace() as BotOutcome.SendMessage
+                    bot.sendMessage(chatId, botSendMessage.message)
 
                 }
 
                 is ManualActionEvent.GetRaceDetails -> {
-                    val message = manualAction.getRaceDetails(manualActionEvent.raceId)
-                    bot.sendMessage(chatId, message)
+                    val botPhotoByUrl =
+                        manualAction.getRaceDetails(manualActionEvent.raceId) as BotOutcome.SendPhotoByUrl
+                    bot.sendPhoto(chatId, botPhotoByUrl.photoUrl, botPhotoByUrl.message)
                 }
             }
         }
