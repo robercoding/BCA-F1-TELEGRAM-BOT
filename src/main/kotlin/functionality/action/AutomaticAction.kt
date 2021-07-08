@@ -2,10 +2,10 @@ package functionality.action
 
 import com.github.kotlintelegrambot.Bot
 import com.github.kotlintelegrambot.entities.ChatId
+import common.utils.Answer
 import functionality.notify.NotifyRace
 import functionality.schedule.ScheduleUtils
 import repository.ActionRepository
-import utils.Answer
 
 //TODO rename to ScheduleActions to make it more clear?
 class AutomaticAction(

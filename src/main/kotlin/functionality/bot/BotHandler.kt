@@ -7,6 +7,9 @@ import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.ParseMode
+import common.*
+import common.utils.*
+import config.F1Config
 import config.TelegramBot
 import functionality.action.AutomaticAction
 import functionality.action.AutomaticActionEvent
@@ -19,10 +22,6 @@ import model.RaceEntity
 import repository.ActionRepository
 import repository.service.RedditService
 import sendHelp
-import utils.BotOutcome
-import utils.CalendarRaceYearNotFound
-import utils.RaceDetailsNotFound
-import utils.StringUtils
 import java.util.*
 
 class BotHandler {
@@ -33,6 +32,7 @@ class BotHandler {
     val actionRepository = ActionRepository()
     private val automaticAction = AutomaticAction(actionRepository)
     private val manualAction = ManualAction(actionRepository)
+    val scope = CoroutineScope(SupervisorJob())
 
     fun startListening() {
         bot = bot {
@@ -41,7 +41,8 @@ class BotHandler {
                 text {
                     println(message.text)
                     val chatId = TelegramUtils.convertToChatId(message.chat.id)
-                    val text = message.text ?: ""
+                    val text = message.text?.trimStartUntilCommand() ?: return@text
+                    val command = text.getCommand()
 
                     if (StringUtils.containsRaceWord(text)) {
                         val raceId = StringUtils.getRaceId(text)
@@ -49,7 +50,8 @@ class BotHandler {
                         return@text
                     }
 
-                    when (text.toLowerCase()) {
+                    // TODO CONVERT THIS TO AN ENUM OR SEALED CLASS
+                    when (command.toLowerCase()) {
                         "/alonso" -> botActions.sendMessage(chatId, "EL MAGIC FIAUUUUUUM ALPINEE!")
                         "/vettel" -> botActions.sendMessage(chatId, "Ferrarí le destrozó la vidas")
                         "/hamilton" -> botActions.sendMessage(chatId, "HAMILTON PRESSED THE MAGIC BUTTON")
@@ -68,7 +70,12 @@ class BotHandler {
                             )
                         )
                         "/reddit" -> getHotPost(chatId)
-                        "/calendar" -> handleManualActions(ManualActionEvent.GetCalendar(chatId))
+                        "/calendar" -> handleManualActions(
+                            ManualActionEvent.GetCalendar(
+                                chatId,
+                                text.getDigits()?.toInt()
+                            )
+                        )
                         "/help" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpES" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpEN" -> bot.sendHelp(message.chat.id, Idiom.EN)
@@ -84,20 +91,28 @@ class BotHandler {
         val chatId: ChatId = manualActionEvent.chatId
         val handler = CoroutineExceptionHandler { coroutineContext, throwable ->
             when (throwable) {
-                is CalendarRaceYearNotFound -> bot.sendMessage(chatId, "Sorry calendar is not available.")
+                is CalendarRaceYearNotFound -> bot.sendMessage(
+                    chatId,
+                    "Sorry we couldn't find a calendar for the season ${throwable.season}."
+                )
                 is RaceDetailsNotFound -> bot.sendMessage(chatId, "Sorry, race details are not available")
-                else -> return@CoroutineExceptionHandler
+                else -> bot.sendMessage(
+                    chatId,
+                    "Sorry, something went wrong, if problem still persist contact me through command /error 'explain here what is the error' "
+                )
             }
         }
 
-        runBlocking(handler) {
+        scope.launch(handler) {
             when (manualActionEvent) {
                 is ManualActionEvent.GetNextRace -> {
                     getNextRace(chatId = manualActionEvent.chatId)
                 }
 
                 is ManualActionEvent.GetCalendar -> {
-                    val botSendMessage = manualAction.getCalendarRace() as BotOutcome.SendMessage
+                    val botSendMessage = manualAction.getCalendarRace(
+                        manualActionEvent.season ?: F1Config.actualSeason
+                    ) as BotOutcome.SendMessage
                     bot.sendMessage(chatId, botSendMessage.message, ParseMode.MARKDOWN_V2)
 
                 }

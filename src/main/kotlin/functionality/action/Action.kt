@@ -1,9 +1,9 @@
 package functionality.action
 
+import common.utils.Answer
 import functionality.race.RaceManager
 import model.dto.RaceDTO
 import repository.ActionRepository
-import utils.Answer
 
 abstract class Action(
     protected val actionRepository: ActionRepository
