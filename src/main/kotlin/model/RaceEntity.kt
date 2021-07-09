@@ -12,8 +12,8 @@ import java.time.LocalDateTime
 
 
 object RaceTable : LongIdTable("Race", "race_id") {
-    val calendarRaceId = reference("calendar_race_year_id", CalendarRaceYearTable, onDelete = ReferenceOption.CASCADE)
-    val grandPrixId = reference("grand_prix_id", GrandPrixTable, onDelete = ReferenceOption.CASCADE)
+    val calendarRaceId = reference("calendar_race_year_id", CalendarRaceYearTable, onDelete = ReferenceOption.NO_ACTION)
+    val grandPrixId = reference("grand_prix_id", GrandPrixTable, onDelete = ReferenceOption.NO_ACTION)
 
     val weekRace = integer("week_race").default(-1)
     val dateQualifying = datetime("date_qualifying").default(LocalDateTime.of(1, 1, 1, 1, 1, 1))
