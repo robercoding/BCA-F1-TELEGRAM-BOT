@@ -12,12 +12,14 @@ import common.outcome.BotOutcome
 import common.utils.*
 import config.F1Config
 import config.TelegramBot
+import data.repository.calendarraceyear.CalendarRaceYearRepositoryImpl
 import data.repository.chat.ChatRepositoryImpl
 import data.repository.notifyraceweek.NotifyRaceWeekRepositoryImpl
-import data.repository.raceweek.RaceRepositoryImpl
+import data.repository.race.RaceRepositoryImpl
 import data.repository.service.RedditService
 import domain.usecase.CalendarRaceYearUseCase
 import domain.usecase.NotifyRaceWeekUseCase
+import domain.usecase.RaceUseCase
 import kotlinx.coroutines.*
 import presentation.functionality.action.automatic.AutomaticAction
 import presentation.functionality.action.automatic.AutomaticActionEvent
@@ -30,14 +32,16 @@ class BotHandler {
     private var timers: MutableList<Pair<Long, TimerTask>> = mutableListOf()
     private lateinit var bot: Bot
     private lateinit var botActions: BotActions
+    private val raceRepository = RaceRepositoryImpl()
     private val automaticAction = AutomaticAction(
         NotifyRaceWeekUseCase(
             NotifyRaceWeekRepositoryImpl(),
-            RaceRepositoryImpl(),
+            raceRepository,
             ChatRepositoryImpl()
         )
     )
-    private val manualAction = ManualAction(CalendarRaceYearUseCase())
+    private val manualAction =
+        ManualAction(CalendarRaceYearUseCase(CalendarRaceYearRepositoryImpl()), RaceUseCase(raceRepository))
     val scope = CoroutineScope(SupervisorJob())
 
     fun startListening() {

@@ -9,6 +9,7 @@ import domain.model.dao.ChatEntity
 import domain.model.dao.NotifyRaceWeekEntity
 import domain.model.dao.NotifyRaceWeekTable
 import domain.model.dao.toNotifyRaceWeek
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 const val ALARM_RW_DEFAULT_DAY = 4
@@ -61,11 +62,13 @@ class NotifyRaceWeekRepositoryImpl : NotifyRaceWeekRepository {
     override fun findById(id: Long): NotifyRaceWeek? = NotifyRaceWeekEntity.findById(id)?.toNotifyRaceWeek()
 
     override fun saveNotifyRaceWeek(notifyRaceWeek: NotifyRaceWeek): NotifyRaceWeekEntity {
-        return NotifyRaceWeekEntity.new {
-            this.isActivated = notifyRaceWeek.isActivated
-            this.day = notifyRaceWeek.day
-            this.hour = notifyRaceWeek.hour
-            this.minute = notifyRaceWeek.minute
+        return transaction {
+            return@transaction NotifyRaceWeekEntity.new {
+                this.isActivated = notifyRaceWeek.isActivated
+                this.day = notifyRaceWeek.day
+                this.hour = notifyRaceWeek.hour
+                this.minute = notifyRaceWeek.minute
+            }
         }
     }
 }

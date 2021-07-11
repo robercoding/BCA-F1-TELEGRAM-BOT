@@ -7,7 +7,7 @@ import common.utils.FormatCaption
 import config.F1Config
 import data.repository.chat.ChatRepository
 import data.repository.notifyraceweek.NotifyRaceWeekRepository
-import data.repository.raceweek.RaceRepository
+import data.repository.race.RaceRepository
 import domain.model.*
 import domain.model.dto.ChatDTO
 import domain.model.dto.RaceDTO

@@ -3,6 +3,7 @@ package presentation.functionality.action.manual
 import common.outcome.BotOutcome
 import common.utils.FormatCaption
 import domain.usecase.CalendarRaceYearUseCase
+import domain.usecase.RaceUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import presentation.functionality.action.Action
@@ -12,7 +13,8 @@ import java.util.*
 //TODO We should make builder in another class as writing it here will make the code more difficult to read as time passes by.
 //TODO add RaceYearUseCase as a parameter
 class ManualAction(
-    private val calendarRaceYearUseCase: CalendarRaceYearUseCase
+    private val calendarRaceYearUseCase: CalendarRaceYearUseCase,
+    private val raceUseCase: RaceUseCase
 ) : Action() {
 
     suspend fun getCalendarRace(season: Int = 2021): BotOutcome {
@@ -27,7 +29,7 @@ class ManualAction(
     suspend fun getRaceDetails(raceId: Long): BotOutcome {
         return withContext(Dispatchers.IO) {
             val timeZone = "Europe/Madrid"
-            val race = calendarRaceYearUseCase.getRaceDetails(raceId)
+            val race = raceUseCase.getRaceDetailsById(raceId)
 
             val captionRaceDetails = FormatCaption.formatRaceDetails(race, timeZone)
             return@withContext BotOutcome.SendPhotoByUrl(captionRaceDetails, race.grandPrix.circuit.layoutCircuitUrl)
