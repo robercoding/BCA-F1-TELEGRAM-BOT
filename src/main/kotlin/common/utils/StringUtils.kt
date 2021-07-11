@@ -1,7 +1,6 @@
 package common.utils
 
 object StringUtils {
-    fun containsRaceWord(string: String): Boolean = string.toLowerCase().contains("race")
 
     fun getRaceId(string: String): Long {
         val fromIndex =
@@ -17,11 +16,6 @@ fun String.getDigits(): String? {
         substring(indexOfFirst { it.isDigit() }, indexOfLast { it.isDigit() } + 1)
             .filter { it.isDigit() }
     } else null
-}
-
-fun String.getCommand(): String {
-    return substring(indexOfFirst { it == '/' }, indexOfLast { it.isLetter() } + 1)
-        .filter { it.isLetter() || it == '/' }
 }
 
 fun String.trimStartUntilCommand(): String {

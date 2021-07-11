@@ -1,21 +1,16 @@
 package functionality.race
 
+import help.getWeekDayOfYear
 import model.dto.RaceDTO
 import java.util.*
 
-class RaceManager {
+class RaceHelper {
 
-
-    //TODO use DateUtils get weekOfyear
     fun isThisWeekRaceWeek(races: List<RaceDTO>): Boolean {
-        val calendar = Calendar.getInstance()
-        val todayWeekOfYear = Calendar.getInstance().get(Calendar.WEEK_OF_YEAR)
+        val todayWeekOfYear = Date().getWeekDayOfYear()
 
         races.forEach {
-            calendar.time = it.dateRace
-            val raceWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR)
-
-            println("Week today = $todayWeekOfYear and raceweek = $raceWeekOfYear and date ${it.dateRace}")
+            val raceWeekOfYear = it.dateRace.getWeekDayOfYear()
             if (todayWeekOfYear == raceWeekOfYear) {
                 return true
             }

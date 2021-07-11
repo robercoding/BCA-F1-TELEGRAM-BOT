@@ -1,3 +1,8 @@
 package model
 
-data class TimerTaskAndAlarmSettled()
+import java.util.*
+
+data class TimerTaskAndAlarmSettled(
+    val timerTask: TimerTask,
+    val alarmSettled: AlarmSettled
+)

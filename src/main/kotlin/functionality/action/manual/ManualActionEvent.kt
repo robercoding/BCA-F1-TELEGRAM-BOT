@@ -1,4 +1,4 @@
-package functionality.action
+package functionality.action.manual
 
 import com.github.kotlintelegrambot.entities.ChatId
 

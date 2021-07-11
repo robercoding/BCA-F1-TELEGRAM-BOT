@@ -11,14 +11,13 @@ import common.*
 import common.utils.*
 import config.F1Config
 import config.TelegramBot
-import functionality.action.AutomaticAction
-import functionality.action.AutomaticActionEvent
-import functionality.action.ManualAction
-import functionality.action.ManualActionEvent
-import functionality.race.RaceManager
-import help.TelegramUtils
+import functionality.action.automatic.AutomaticAction
+import functionality.action.automatic.AutomaticActionEvent
+import functionality.action.manual.ManualAction
+import functionality.action.manual.ManualActionEvent
+import functionality.race.RaceHelper
+import help.*
 import kotlinx.coroutines.*
-import model.RaceEntity
 import repository.ActionRepository
 import repository.service.RedditService
 import sendHelp
@@ -28,7 +27,7 @@ class BotHandler {
     private var timers: MutableList<Pair<Long, TimerTask>> = mutableListOf()
     private lateinit var bot: Bot
     private lateinit var botActions: BotActions
-    private val raceManager = RaceManager()
+    private val raceManager = RaceHelper()
     val actionRepository = ActionRepository()
     private val automaticAction = AutomaticAction(actionRepository)
     private val manualAction = ManualAction(actionRepository)
@@ -39,16 +38,18 @@ class BotHandler {
             token = TelegramBot.TOKEN
             dispatch {
                 text {
-                    println(message.text)
+                    println("Text: ${message.text}")
                     val chatId = TelegramUtils.convertToChatId(message.chat.id)
                     val text = message.text?.trimStartUntilCommand() ?: return@text
-                    val command = text.getCommand()
 
-                    if (StringUtils.containsRaceWord(text)) {
+                    if (CommandUtils.requestRaceDetails(text)) {
                         val raceId = StringUtils.getRaceId(text)
                         handleManualActions(ManualActionEvent.GetRaceDetails(raceId = raceId, chatId = chatId))
                         return@text
                     }
+
+                    val command = text.getCommandUntilWhiteSpace()
+                    println("Command: $command")
 
                     // TODO CONVERT THIS TO AN ENUM OR SEALED CLASS
                     when (command.toLowerCase()) {
@@ -57,8 +58,6 @@ class BotHandler {
                         "/hamilton" -> botActions.sendMessage(chatId, "HAMILTON PRESSED THE MAGIC BUTTON")
                         "/nextrace" -> handleManualActions(ManualActionEvent.GetNextRace(chatId))
                         "/nr" -> handleManualActions(ManualActionEvent.GetNextRace(chatId))
-                        "/autRemindRaceWeek" -> handleAutomaticActions(AutomaticActionEvent.RemindRaceWeek(chatId))
-                        "/autRecordarSemanaCarrera" -> handleAutomaticActions(AutomaticActionEvent.RemindRaceWeek(chatId))
                         "/autDisableReminderRaceWeek" -> handleAutomaticActions(
                             AutomaticActionEvent.DisableRemindRaceWeek(
                                 chatId
@@ -79,6 +78,15 @@ class BotHandler {
                         "/help" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpES" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpEN" -> bot.sendHelp(message.chat.id, Idiom.EN)
+                        "/chat" -> println(message.chat)
+                        "/setalarmraceweek" -> {
+                            handleAutomaticActions(
+                                AutomaticActionEvent.RemindRaceWeek(
+                                    chatId,
+                                    text.trimStartUntilCommand().removeCommand()
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -106,7 +114,7 @@ class BotHandler {
         scope.launch(handler) {
             when (manualActionEvent) {
                 is ManualActionEvent.GetNextRace -> {
-                    getNextRace(chatId = manualActionEvent.chatId)
+
                 }
 
                 is ManualActionEvent.GetCalendar -> {
@@ -127,91 +135,27 @@ class BotHandler {
     }
 
     private fun handleAutomaticActions(automaticActionEvent: AutomaticActionEvent) {
-        when (automaticActionEvent) {
-            is AutomaticActionEvent.RemindRaceWeek -> {
-                activateScheduleThursday(automaticActionEvent.chatId)
-            }
+        val chatId: ChatId = automaticActionEvent.chatId
 
-            is AutomaticActionEvent.DisableRemindRaceWeek -> {
-                stopTimer(chatId = automaticActionEvent.chatId)
+        scope.launch {
+            when (automaticActionEvent) {
+                is AutomaticActionEvent.RemindRaceWeek -> {
+                    val alarmRaceWeek = AlarmUtils.getAlarmRaceWeekTime(automaticActionEvent.alarmValues)
+                    val botPhotoByUrl =
+                        automaticAction.setAlarmRaceWeek(bot, chatId, alarmRaceWeek) as BotOutcome.SendPhotoByUrl
+                    bot.sendPhoto(
+                        chatId,
+                        "https://external-preview.redd.it/kp_TGuhjEmWpxeJlBd9I5ErR75ZE6hC3O9sx4VbN2s8.jpg?width=960&crop=smart&auto=webp&s=383c68d4310c3c563a6662714cd1fe93b0769d39",
+                        botPhotoByUrl.message,
+                        ParseMode.MARKDOWN_V2
+                    )
+                }
+
+                is AutomaticActionEvent.DisableRemindRaceWeek -> {
+                    stopTimer(chatId = automaticActionEvent.chatId)
+                }
             }
         }
-    }
-
-    fun activateScheduleThursday(chatId: ChatId) {
-        automaticAction.activateScheduleThursday(bot, chatId)
-        automaticAction.isRaceWeek()
-//        val timer = ScheduleUtils.getTimerTask {
-//            notifyChatIfThisWeekIsRaceWeek(chatId)
-//        }
-//
-//        val chatIdLong = (chatId as ChatId.Id).id
-//        timers.add(Pair(chatIdLong, timer))
-//        bot.sendMessage(chatId, "Perfecto, cada jueves comprobaré si hay carrera esa misma semana.")
-    }
-
-
-//    private fun notifyChatIfThisWeekIsRaceWeek(chatId: ChatId){
-//        val races = actionRepository.getRaceCalendar().races
-//        if(raceManager.isThisWeekRaceWeek(races)){
-//            val raceWeek = raceManager.getNextRaceWeek(races)
-//            if(raceWeek.country == "Empty") return //Why the heck is this here, investigate later
-//
-//            notifyRaceWeek(chatId, raceWeek)
-//        }
-//    }
-
-//    private fun notifyRaceWeek(chatId: ChatId, race: Race) {
-//        var captionSprintQualifying = ""
-//        if(race.isSprintQualifying){
-//            captionSprintQualifying = "\n Sprint Qualifying: ${formatToTimezoneGMT(race.dateSprintQualifying)}"
-//        }
-//        val caption = "RACE WEEK!!" +
-//                "\n\nA continuación detalles de la siguiente carrera:" +
-//                "\n País: ${race.country}" +
-//                "\n Circuito: ${race.nameCircuit}" +
-//                captionSprintQualifying +
-//                "\n Clasificación: ${formatToTimezoneGMT(race.dateQualifying)}" +
-//                "\n Carrera: ${formatToTimezoneGMT(race.dateRace)}"
-//
-//        bot.sendPhoto(
-//                chatId = chatId,
-//                race.layoutCircuitUrl,
-//                caption
-//        )
-//    }
-
-    private fun getNextRace(chatId: ChatId) {
-        val races = actionRepository.getCalendarRace().races
-        val race = raceManager.getNextRaceWeek(races) // RaceManager should be called RaceHelper instead
-
-//        if (race.country == "Empty") {
-//            bot.sendMessage(chatId, "No hay más carreras esta temporada :(")
-//        } else {
-//            bot.sendPhoto(chatId, race.layoutCircuitUrl, formatTextNextRace(race))
-//        }
-    }
-
-    //TODO FORMATTEXTNEXTRACE SHOULD BE IN A LanguageHelper class to translate it according to the selected language
-    private fun formatTextNextRace(race: RaceEntity): String {
-//        if (race.grandPrix == "Empty") {
-//            return "No hay más carreras esta temporada... :("
-//        }
-
-        var captionSprintQualifying = ""
-        if (race.isSprintQualifying) {
-//            captionSprintQualifying =
-//                "\n Sprint Qualifying: ${formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateSprintQualifying))}"
-        }
-
-        return ""
-//        return "La siguiente carrera será el día ${DateUtils.formatDayAndMonthToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateRace))} en el ${race.nameGrandPrix}" +
-//                "\n\n Detalles importantes:" +
-//                "\n País: ${race.country}" +
-//                "\n Circuito: ${race.nameCircuit}" +
-//                captionSprintQualifying +
-//                "\n Clasificación: ${DateUtils.formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateQualifying))}" +
-//                "\n Carrera: ${DateUtils.formatToTimezoneGMT(DateUtils.convertToDateFromLocalDateTime(race.dateRace))}"
     }
 
     //TODO STOPTIMER SHOULD BE REMOVE FROM DB AND CANCEL IT
