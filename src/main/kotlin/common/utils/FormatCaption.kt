@@ -1,9 +1,9 @@
 package common.utils
 
+import domain.model.NotifyRaceWeekSettled
+import domain.model.dto.RaceDTO
 import help.formatMonthDay
 import help.formatMonthDayHourMinuteAndPreferredTimezone
-import model.AlarmSettled
-import model.dto.RaceDTO
 
 object FormatCaption {
 
@@ -44,12 +44,12 @@ object FormatCaption {
         return builder.toString()
     }
 
-    fun formatSetAlarm(alarmSettled: AlarmSettled, timeZone: String): String {
+    fun formatSetAlarm(notifyRaceWeekSettled: NotifyRaceWeekSettled, timeZone: String): String {
         println("lets format set alarm")
         val builder = StringBuilder()
-        val notifyInDays = alarmSettled.notifyInDays
-        val notifyInHours = alarmSettled.notifyInHours
-        val notifyInMinutes = alarmSettled.notifyInMinutes
+        val notifyInDays = notifyRaceWeekSettled.notifyInDays
+        val notifyInHours = notifyRaceWeekSettled.notifyInHours
+        val notifyInMinutes = notifyRaceWeekSettled.notifyInMinutes
 
         builder.append("We'll notify you about race week in:\n")
         if (notifyInDays > 0) {
@@ -71,9 +71,9 @@ object FormatCaption {
         }
 
 
-        val dayOfWeek = alarmSettled.everyDayOfWeek
-        val everyHour = alarmSettled.everyHour
-        val everyMinute = alarmSettled.everyMinute
+        val dayOfWeek = notifyRaceWeekSettled.everyDayOfWeek
+        val everyHour = notifyRaceWeekSettled.everyHour
+        val everyMinute = notifyRaceWeekSettled.everyMinute
 
         builder.append(
             "*\n\nAfter that it will notify you every *$dayOfWeek at ${

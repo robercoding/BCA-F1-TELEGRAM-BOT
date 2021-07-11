@@ -1,13 +1,13 @@
 package help
 
 import common.utils.getDigits
-import model.AlarmRaceWeek
+import domain.model.NotifyRaceWeek
 
 object AlarmUtils {
 
-    fun getAlarmRaceWeekTime(text: String): AlarmRaceWeek {
+    fun getAlarmRaceWeekTime(text: String): NotifyRaceWeek {
         val alarmRaceWeekValues = text.toLowerCase()
-        val alarmRaceWeek = AlarmRaceWeek()
+        val alarmRaceWeek = NotifyRaceWeek()
         val indexDay = alarmRaceWeekValues.indexOfFirst { it == 'd' }
         val indexHour = alarmRaceWeekValues.indexOfFirst { it == 'h' }
         val indexMinute = alarmRaceWeekValues.indexOfFirst { it == 'm' }
