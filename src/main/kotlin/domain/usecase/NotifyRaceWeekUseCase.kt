@@ -19,7 +19,7 @@ class NotifyRaceWeekUseCase(
     private val raceRepository: RaceRepository,
     private val chatRepository: ChatRepository
 ) {
-    val raceHelper = RaceHelper()
+    private val raceHelper = RaceHelper()
     private val listTimers = mutableListOf<ChatTimerTask>()
 
     fun setOnNotifyRaceWeek(bot: Bot, chat: Chat, notifyRaceWeek: NotifyRaceWeek): NotifyRaceWeekSettled {
@@ -40,15 +40,13 @@ class NotifyRaceWeekUseCase(
         chat: ChatDTO,
         notifyRaceWeek: NotifyRaceWeek
     ): TimerTaskAndNotifyRaceWeek {
-        val timerTaskAndAlarmSettled = ScheduleUtils.getTimerTask(notifyRaceWeek) {
+        return ScheduleUtils.getTimerTask(notifyRaceWeek) {
             val answer = isRaceWeek()
             if (answer is Answer.Yes) {
                 notifyRaceWeek(bot, chat, answer.data)
             }
             //TODO if answer no then check if user wants to be notified when there's no race in every week check
         }
-
-        return timerTaskAndAlarmSettled
     }
 
     private fun isRaceWeek(): Answer<RaceDTO> {

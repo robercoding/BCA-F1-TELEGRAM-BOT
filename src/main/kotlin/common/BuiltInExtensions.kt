@@ -7,8 +7,14 @@ import domain.model.dto.ChatDTO
 
 
 //ToDomainChat
-fun com.github.kotlintelegrambot.entities.Chat.toChat(): Chat =
-    Chat(this.id, this.username, this.description, this.title, timeZone = null, CHAT_TYPE.valueOf(this.type))
+fun com.github.kotlintelegrambot.entities.Chat.toChat(): Chat = Chat(
+    this.id,
+    this.username,
+    this.description,
+    this.title,
+    timeZone = null,
+    CHAT_TYPE.valueOf(this.type.toUpperCase())
+)
 
 //ToChatId
 fun Chat.toChatId(): ChatId = ChatId.Id(this.id)
