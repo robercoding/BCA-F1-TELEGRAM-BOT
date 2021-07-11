@@ -44,7 +44,6 @@ object FormatCaption {
 
     //TODO Add timezone to this format alarm
     fun formatSetAlarm(notifyRaceWeekSettled: NotifyRaceWeekSettled): String {
-        println("lets format set alarm")
         val builder = StringBuilder()
         val notifyInDays = notifyRaceWeekSettled.notifyInDays
         val notifyInHours = notifyRaceWeekSettled.notifyInHours
@@ -52,36 +51,50 @@ object FormatCaption {
 
         builder.append("We'll notify you about race week in:\n")
         if (notifyInDays > 0) {
-            builder.append("*$notifyInDays ${if (notifyInDays > 1) "days" else "day"}")
+            builder.append("*$notifyInDays ${if (notifyInDays > 1) "days" else "day"}*")
             if (notifyInHours > 0 && notifyInMinutes > 0) {
-                builder.append(",")
+                builder.append("*,* ")
             } else if (notifyInHours > 0 || notifyInMinutes > 0) {
-                builder.append(" and ")
+                builder.append(" *and* ")
             }
         }
 
         if (notifyInHours > 0) {
-            builder.append("\t $notifyInHours ${if (notifyInHours > 1) "hours" else "hour"}")
-            if (notifyInMinutes > 0) builder.append(" and ")
+            builder.append("\t *$notifyInHours ${if (notifyInHours > 1) "hours" else "hour"}*")
+            if (notifyInMinutes > 0) builder.append(" *and* ")
         }
 
         if (notifyInMinutes > 0) {
-            builder.append("$notifyInMinutes ${if (notifyInMinutes > 1) "minutes" else "minute"}")
+            builder.append("*$notifyInMinutes ${if (notifyInMinutes > 1) "minutes" else "minute"}*")
+        } else if (notifyInDays == 0 && notifyInHours == 0 && notifyInMinutes == 0) {
+            builder.append("*$notifyInMinutes minutes*")
         }
-
 
         val dayOfWeek = notifyRaceWeekSettled.everyDayOfWeek
         val everyHour = notifyRaceWeekSettled.everyHour
         val everyMinute = notifyRaceWeekSettled.everyMinute
 
+
         builder.append(
-            "*\n\nAfter that it will notify you every *$dayOfWeek at ${
+            "\n\nAfter that it will notify you *every $dayOfWeek at ${
                 String.format(
                     "%02d",
                     everyHour
                 )
-            }:${String.format("%02d", everyMinute)}* in your actual *timezone ${notifyRaceWeekSettled.timeZone}*"
+            }*"
         )
+
+        builder.append(
+            "*:${
+                String.format(
+                    "%02d",
+                    everyMinute
+                )
+            }*"
+        )
+
+        builder.append(" *in your actual timezone ${notifyRaceWeekSettled.timeZone.id}*")
+
         return builder.toString()
     }
 }
