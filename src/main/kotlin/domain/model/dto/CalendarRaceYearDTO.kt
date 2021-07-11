@@ -1,6 +1,6 @@
 package domain.model.dto
 
-data class CalendarRaceYear(
+data class CalendarRaceYearDTO(
     var yearId: Int = -1,
     val season: Int,
     val races: List<RaceDTO>,

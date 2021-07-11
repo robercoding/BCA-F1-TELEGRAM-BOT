@@ -1,4 +1,4 @@
-package help
+package common.utils
 
 object CommandUtils {
     /**

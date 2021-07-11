@@ -2,8 +2,6 @@ package common.utils
 
 import domain.model.NotifyRaceWeekSettled
 import domain.model.dto.RaceDTO
-import help.formatMonthDay
-import help.formatMonthDayHourMinuteAndPreferredTimezone
 
 object FormatCaption {
 
@@ -44,7 +42,8 @@ object FormatCaption {
         return builder.toString()
     }
 
-    fun formatSetAlarm(notifyRaceWeekSettled: NotifyRaceWeekSettled, timeZone: String): String {
+    //TODO Add timezone to this format alarm
+    fun formatSetAlarm(notifyRaceWeekSettled: NotifyRaceWeekSettled): String {
         println("lets format set alarm")
         val builder = StringBuilder()
         val notifyInDays = notifyRaceWeekSettled.notifyInDays
@@ -81,7 +80,7 @@ object FormatCaption {
                     "%02d",
                     everyHour
                 )
-            }:${String.format("%02d", everyMinute)}* in your actual *timezone $timeZone*"
+            }:${String.format("%02d", everyMinute)}* in your actual *timezone ${notifyRaceWeekSettled.timeZone}*"
         )
         return builder.toString()
     }

@@ -1,4 +1,4 @@
-package domain.model.dto
+package domain.model
 
 import java.util.*
 

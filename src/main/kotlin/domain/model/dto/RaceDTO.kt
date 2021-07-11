@@ -1,5 +1,6 @@
 package domain.model.dto
 
+import domain.model.GrandPrix
 import java.util.*
 
 data class RaceDTO(

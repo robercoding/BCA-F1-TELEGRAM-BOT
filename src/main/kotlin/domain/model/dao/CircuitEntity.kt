@@ -1,6 +1,5 @@
 package domain.model
 
-import domain.model.dto.Circuit
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -29,7 +28,7 @@ class CircuitEntity(id: EntityID<Int>) : IntEntity(id) {
     var layoutCircuitUrl by CircuitTable.layoutCircuitUrl
 }
 
-fun CircuitEntity.toDTO(): Circuit = Circuit(
+fun CircuitEntity.toCircuit(): Circuit = Circuit(
     id = this.id.value,
     name = this.name,
     country = this.country,

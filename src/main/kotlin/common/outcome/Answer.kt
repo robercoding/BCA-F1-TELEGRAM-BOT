@@ -1,4 +1,4 @@
-package common.utils
+package common.outcome
 
 sealed class Answer<T> {
     data class Yes<T>(val data: T) : Answer<T>()

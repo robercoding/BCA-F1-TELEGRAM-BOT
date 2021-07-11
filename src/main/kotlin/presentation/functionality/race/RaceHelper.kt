@@ -1,7 +1,7 @@
 package presentation.functionality.race
 
+import common.utils.getWeekDayOfYear
 import domain.model.dto.RaceDTO
-import help.getWeekDayOfYear
 import java.util.*
 
 class RaceHelper {
@@ -22,7 +22,6 @@ class RaceHelper {
         val timeNowMillis = Date().time
         for (race in races) {
             if (timeNowMillis < race.dateRace.time) {
-//            if (timeNowMillis < race.dateRace.time) {
                 return race
             }
         }

@@ -8,18 +8,21 @@ import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.ParseMode
 import common.*
+import common.outcome.BotOutcome
 import common.utils.*
 import config.F1Config
 import config.TelegramBot
-import data.repository.ActionRepository
+import data.repository.chat.ChatRepositoryImpl
+import data.repository.notifyraceweek.NotifyRaceWeekRepositoryImpl
+import data.repository.raceweek.RaceRepositoryImpl
 import data.repository.service.RedditService
-import help.*
+import domain.usecase.CalendarRaceYearUseCase
+import domain.usecase.NotifyRaceWeekUseCase
 import kotlinx.coroutines.*
 import presentation.functionality.action.automatic.AutomaticAction
 import presentation.functionality.action.automatic.AutomaticActionEvent
 import presentation.functionality.action.manual.ManualAction
 import presentation.functionality.action.manual.ManualActionEvent
-import presentation.functionality.race.RaceHelper
 import sendHelp
 import java.util.*
 
@@ -27,10 +30,14 @@ class BotHandler {
     private var timers: MutableList<Pair<Long, TimerTask>> = mutableListOf()
     private lateinit var bot: Bot
     private lateinit var botActions: BotActions
-    private val raceManager = RaceHelper()
-    val actionRepository = ActionRepository()
-    private val automaticAction = AutomaticAction(actionRepository)
-    private val manualAction = ManualAction(actionRepository)
+    private val automaticAction = AutomaticAction(
+        NotifyRaceWeekUseCase(
+            NotifyRaceWeekRepositoryImpl(),
+            RaceRepositoryImpl(),
+            ChatRepositoryImpl()
+        )
+    )
+    private val manualAction = ManualAction(CalendarRaceYearUseCase())
     val scope = CoroutineScope(SupervisorJob())
 
     fun startListening() {
@@ -38,8 +45,7 @@ class BotHandler {
             token = TelegramBot.TOKEN
             dispatch {
                 text {
-                    println("Text: ${message.text}")
-                    val chatId = TelegramUtils.convertToChatId(message.chat.id)
+                    val chatId = message.chat.toChatId()
                     val text = message.text?.trimStartUntilCommand() ?: return@text
 
                     if (CommandUtils.requestRaceDetails(text)) {
@@ -49,7 +55,6 @@ class BotHandler {
                     }
 
                     val command = text.getCommandUntilWhiteSpace()
-                    println("Command: $command")
 
                     // TODO CONVERT THIS TO AN ENUM OR SEALED CLASS
                     when (command.toLowerCase()) {
@@ -83,6 +88,7 @@ class BotHandler {
                             handleAutomaticActions(
                                 AutomaticActionEvent.RemindRaceWeek(
                                     chatId,
+                                    message.chat.toChat(),
                                     text.trimStartUntilCommand().removeCommand()
                                 )
                             )
@@ -140,9 +146,14 @@ class BotHandler {
         scope.launch {
             when (automaticActionEvent) {
                 is AutomaticActionEvent.RemindRaceWeek -> {
-                    val alarmRaceWeek = AlarmUtils.getAlarmRaceWeekTime(automaticActionEvent.alarmValues)
+                    val alarmRaceWeek = NotifyRaceWeekUtils.getNotifyRaceWeekTime(automaticActionEvent.alarmValues)
+
                     val botPhotoByUrl =
-                        automaticAction.setAlarmRaceWeek(bot, chatId, alarmRaceWeek) as BotOutcome.SendPhotoByUrl
+                        automaticAction.setAlarmRaceWeek(
+                            bot,
+                            automaticActionEvent.chat,
+                            alarmRaceWeek
+                        ) as BotOutcome.SendPhotoByUrl
                     bot.sendPhoto(
                         chatId,
                         "https://external-preview.redd.it/kp_TGuhjEmWpxeJlBd9I5ErR75ZE6hC3O9sx4VbN2s8.jpg?width=960&crop=smart&auto=webp&s=383c68d4310c3c563a6662714cd1fe93b0769d39",

@@ -1,6 +1,6 @@
 package domain.model.dao
 
-import domain.model.dto.CalendarRaceYear
+import domain.model.dto.CalendarRaceYearDTO
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -19,10 +19,10 @@ class CalendarRaceYearEntity(id: EntityID<Int>) : IntEntity(id) {
     var season by CalendarRaceYearTable.season
 }
 
-fun CalendarRaceYearEntity.toDTO(): CalendarRaceYear {
-    return CalendarRaceYear(
+fun CalendarRaceYearEntity.toCalendarRaceYearDTO(): CalendarRaceYearDTO {
+    return CalendarRaceYearDTO(
         yearId = this.id.value,
         season = this.season,
-        races = this.races.map { raceEntity -> raceEntity.toDTO() }
+        races = this.races.map { raceEntity -> raceEntity.toRaceDTO() }
     )
 }

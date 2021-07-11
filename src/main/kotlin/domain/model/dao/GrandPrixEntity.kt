@@ -2,8 +2,8 @@ package domain.model.dao
 
 import domain.model.CircuitEntity
 import domain.model.CircuitTable
-import domain.model.dto.GrandPrix
-import domain.model.toDTO
+import domain.model.GrandPrix
+import domain.model.toCircuit
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -23,8 +23,8 @@ class GrandPrixEntity(id: EntityID<Int>) : IntEntity(id) {
     var name by GrandPrixTable.name
 }
 
-fun GrandPrixEntity.toDTO(): GrandPrix = GrandPrix(
+fun GrandPrixEntity.toGrandPrix(): GrandPrix = GrandPrix(
     id = this.id.value,
-    circuit = this.circuit.toDTO(),
+    circuit = this.circuit.toCircuit(),
     name = this.name
 )

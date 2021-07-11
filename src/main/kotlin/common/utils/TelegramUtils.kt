@@ -1,4 +1,4 @@
-package help
+package common.utils
 
 import com.github.kotlintelegrambot.entities.ChatId
 

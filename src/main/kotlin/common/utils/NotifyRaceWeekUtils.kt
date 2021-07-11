@@ -1,11 +1,10 @@
-package help
+package common.utils
 
-import common.utils.getDigits
 import domain.model.NotifyRaceWeek
 
-object AlarmUtils {
+object NotifyRaceWeekUtils {
 
-    fun getAlarmRaceWeekTime(text: String): NotifyRaceWeek {
+    fun getNotifyRaceWeekTime(text: String): NotifyRaceWeek {
         val alarmRaceWeekValues = text.toLowerCase()
         val alarmRaceWeek = NotifyRaceWeek()
         val indexDay = alarmRaceWeekValues.indexOfFirst { it == 'd' }

@@ -1,5 +1,6 @@
-package domain.model
+package domain.model.dao
 
+import domain.model.NotifyRaceWeek
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -29,3 +30,10 @@ class NotifyRaceWeekEntity(id: EntityID<Long>) : LongEntity(id) {
     var hour by NotifyRaceWeekTable.hour
     var minute by NotifyRaceWeekTable.minute
 }
+
+fun NotifyRaceWeekEntity.toNotifyRaceWeek() = NotifyRaceWeek(
+    isActivated = this.isActivated,
+    day = this.day,
+    hour = this.hour,
+    minute = this.minute
+)

@@ -1,4 +1,4 @@
-package domain.model.dto
+package domain.model
 
 data class Circuit(
     var id: Int = -1,

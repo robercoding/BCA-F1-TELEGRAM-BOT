@@ -1,8 +1,5 @@
 package presentation.functionality.schedule
 
-import data.repository.ALARM_RW_DEFAULT_DAY
-import data.repository.ALARM_RW_DEFAULT_HOUR
-import data.repository.ALARM_RW_DEFAULT_MINUTE
 import domain.model.NotifyRaceWeek
 import domain.model.NotifyRaceWeekSettled
 import domain.model.TimerTaskAndNotifyRaceWeek
@@ -21,9 +18,9 @@ object ScheduleUtils {
     private var zoneId = ZoneId.of("Europe/Madrid")
 
     fun getTimerTask(notifyRaceWeek: NotifyRaceWeek, notifyRace: () -> Unit): TimerTaskAndNotifyRaceWeek {
-        val dayOfWeek = getDayOfWeek(notifyRaceWeek.day ?: ALARM_RW_DEFAULT_DAY)
-        val hour = notifyRaceWeek.hour ?: ALARM_RW_DEFAULT_HOUR
-        val minute = notifyRaceWeek.minute ?: ALARM_RW_DEFAULT_MINUTE
+        val dayOfWeek = getDayOfWeek(notifyRaceWeek.day)
+        val hour = notifyRaceWeek.hour
+        val minute = notifyRaceWeek.minute
 
         val delay = getDelay(dayOfWeek, hour, minute)
         val period = weekInMilliseconds

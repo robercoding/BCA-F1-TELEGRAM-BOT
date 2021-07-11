@@ -1,4 +1,4 @@
-package common.utils
+package common.outcome
 
 sealed class BotOutcome {
     data class SendMessage(val message: String) : BotOutcome()
