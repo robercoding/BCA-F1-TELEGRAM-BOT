@@ -161,7 +161,8 @@ class BotHandler {
         scope.launch {
             when (automaticActionEvent) {
                 is AutomaticActionEvent.SetNotifyRaceWeek -> {
-                    val alarmRaceWeek = NotifyRaceWeekUtils.getNotifyRaceWeekTime(automaticActionEvent.alarmValues)
+                    val alarmRaceWeek =
+                        NotifyRaceWeekUtils.getNotifyRaceWeekTime(automaticActionEvent.alarmValues, true)
 
                     val botPhotoByUrl =
                         automaticAction.setAlarmRaceWeek(

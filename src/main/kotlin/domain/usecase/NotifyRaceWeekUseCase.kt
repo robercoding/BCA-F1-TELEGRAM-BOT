@@ -4,6 +4,7 @@ import com.github.kotlintelegrambot.Bot
 import common.outcome.Answer
 import common.toChatId
 import common.utils.ChatNotifyRaceWeekDoesntExist
+import common.utils.ErrorUpdatingNotifyRaceWeek
 import common.utils.FormatCaption
 import config.F1Config
 import data.repository.chat.ChatRepository
@@ -28,7 +29,10 @@ class NotifyRaceWeekUseCase(
     fun setOnNotifyRaceWeek(bot: Bot, chat: Chat, notifyRaceWeek: NotifyRaceWeek): NotifyRaceWeekSettled {
         val chatDTO = chatRepository.findById(chat.id) ?: createChatAndNotifyRaceWeek(chat, notifyRaceWeek)
 
-        val timerTaskAndNotifyRaceWeek = scheduleNotifyRaceWeek(bot, chatDTO, notifyRaceWeek)
+        notifyRaceWeek.id = chatDTO.notifyRaceWeek.id
+        val notifyRaceWeekDb = notifyRaceWeekRepository.update(notifyRaceWeek) ?: throw ErrorUpdatingNotifyRaceWeek()
+
+        val timerTaskAndNotifyRaceWeek = scheduleNotifyRaceWeek(bot, chatDTO, notifyRaceWeekDb)
         mapTimers.toMutableMap()[chatDTO.id] = timerTaskAndNotifyRaceWeek.timerTask
         return timerTaskAndNotifyRaceWeek.notifyRaceWeekSettled
     }
@@ -75,11 +79,11 @@ class NotifyRaceWeekUseCase(
     fun unsetOnNotifyRaceWeek(chat: Chat): NotifyRaceWeekUnsettled {
         return transaction {
             val chatDTO = chatRepository.findById(chat.id) ?: throw ChatNotifyRaceWeekDoesntExist()
-            val notifyRaceWeekDb = chatDTO.notifyRaceWeek
-            notifyRaceWeekDb.isActivated = false
-            notifyRaceWeekRepository.saveNotifyRaceWeek(notifyRaceWeekDb)
+            val notifyRaceWeek = chatDTO.notifyRaceWeek
+            notifyRaceWeek.isActivated = false
+            val notifyRaceWeekDb =
+                notifyRaceWeekRepository.update(notifyRaceWeek) ?: throw ErrorUpdatingNotifyRaceWeek()
             mapTimers.toMutableMap().remove(chatDTO.id)
-
 
             return@transaction NotifyRaceWeekUnsettled(
                 notifyRaceWeekDb,

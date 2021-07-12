@@ -6,3 +6,5 @@ class RaceDetailsNotFound : Exception()
 class ChatNotifyRaceWeekDoesntExist : Exception()
 
 class DayOfWeekUnsupportedNumber(val number: Int) : Exception()
+
+class ErrorUpdatingNotifyRaceWeek : Exception()

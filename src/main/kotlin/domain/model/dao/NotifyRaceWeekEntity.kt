@@ -32,6 +32,7 @@ class NotifyRaceWeekEntity(id: EntityID<Long>) : LongEntity(id) {
 }
 
 fun NotifyRaceWeekEntity.toNotifyRaceWeek() = NotifyRaceWeek(
+    id = id.value,
     isActivated = this.isActivated,
     day = this.day,
     hour = this.hour,

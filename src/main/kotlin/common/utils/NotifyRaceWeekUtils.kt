@@ -4,9 +4,9 @@ import domain.model.NotifyRaceWeek
 
 object NotifyRaceWeekUtils {
 
-    fun getNotifyRaceWeekTime(text: String): NotifyRaceWeek {
+    fun getNotifyRaceWeekTime(text: String, isNotifyRaceWeekActive: Boolean = true): NotifyRaceWeek {
         val alarmRaceWeekValues = text.toLowerCase()
-        val alarmRaceWeek = NotifyRaceWeek()
+        val alarmRaceWeek = NotifyRaceWeek(isActivated = isNotifyRaceWeekActive)
         val indexDay = alarmRaceWeekValues.indexOfFirst { it == 'd' }
         val indexHour = alarmRaceWeekValues.indexOfFirst { it == 'h' }
         val indexMinute = alarmRaceWeekValues.indexOfFirst { it == 'm' }

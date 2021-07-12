@@ -7,4 +7,5 @@ import domain.model.dto.ChatDTO
 
 interface ChatRepository : Repository<ChatDTO> {
     fun saveChat(chat: Chat, notifyRaceWeekEntity: NotifyRaceWeekEntity): ChatDTO
+    override fun update(chatDTO: ChatDTO): ChatDTO?
 }
