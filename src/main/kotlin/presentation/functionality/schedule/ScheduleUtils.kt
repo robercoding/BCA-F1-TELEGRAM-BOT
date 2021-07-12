@@ -1,5 +1,6 @@
 package presentation.functionality.schedule
 
+import common.utils.toDayOfWeek
 import domain.model.NotifyRaceWeek
 import domain.model.NotifyRaceWeekSettled
 import domain.model.TimerTaskAndNotifyRaceWeek
@@ -18,7 +19,7 @@ object ScheduleUtils {
     private var zoneId = ZoneId.of("Europe/Madrid")
 
     fun getTimerTask(notifyRaceWeek: NotifyRaceWeek, notifyRace: () -> Unit): TimerTaskAndNotifyRaceWeek {
-        val dayOfWeek = getDayOfWeek(notifyRaceWeek.day)
+        val dayOfWeek = notifyRaceWeek.day.toDayOfWeek()
         val hour = notifyRaceWeek.hour
         val minute = notifyRaceWeek.minute
 

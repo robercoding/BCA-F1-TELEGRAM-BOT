@@ -3,6 +3,7 @@ package domain.usecase
 import com.github.kotlintelegrambot.Bot
 import common.outcome.Answer
 import common.toChatId
+import common.utils.ChatNotifyRaceWeekDoesntExist
 import common.utils.FormatCaption
 import config.F1Config
 import data.repository.chat.ChatRepository
@@ -11,8 +12,10 @@ import data.repository.race.RaceRepository
 import domain.model.*
 import domain.model.dto.ChatDTO
 import domain.model.dto.RaceDTO
+import org.jetbrains.exposed.sql.transactions.transaction
 import presentation.functionality.race.RaceHelper
 import presentation.functionality.schedule.ScheduleUtils
+import java.util.*
 
 class NotifyRaceWeekUseCase(
     private val notifyRaceWeekRepository: NotifyRaceWeekRepository,
@@ -20,13 +23,13 @@ class NotifyRaceWeekUseCase(
     private val chatRepository: ChatRepository
 ) {
     private val raceHelper = RaceHelper()
-    private val listTimers = mutableListOf<ChatTimerTask>()
+    private val mapTimers = mapOf<Long, TimerTask>()
 
     fun setOnNotifyRaceWeek(bot: Bot, chat: Chat, notifyRaceWeek: NotifyRaceWeek): NotifyRaceWeekSettled {
         val chatDTO = chatRepository.findById(chat.id) ?: createChatAndNotifyRaceWeek(chat, notifyRaceWeek)
 
         val timerTaskAndNotifyRaceWeek = scheduleNotifyRaceWeek(bot, chatDTO, notifyRaceWeek)
-        listTimers.add(ChatTimerTask(chatDTO.id, timerTaskAndNotifyRaceWeek.timerTask))
+        mapTimers.toMutableMap()[chatDTO.id] = timerTaskAndNotifyRaceWeek.timerTask
         return timerTaskAndNotifyRaceWeek.notifyRaceWeekSettled
     }
 
@@ -67,5 +70,21 @@ class NotifyRaceWeekUseCase(
             "",
             caption
         )
+    }
+
+    fun unsetOnNotifyRaceWeek(chat: Chat): NotifyRaceWeekUnsettled {
+        return transaction {
+            val chatDTO = chatRepository.findById(chat.id) ?: throw ChatNotifyRaceWeekDoesntExist()
+            val notifyRaceWeekDb = chatDTO.notifyRaceWeek
+            notifyRaceWeekDb.isActivated = false
+            notifyRaceWeekRepository.saveNotifyRaceWeek(notifyRaceWeekDb)
+            mapTimers.toMutableMap().remove(chatDTO.id)
+
+
+            return@transaction NotifyRaceWeekUnsettled(
+                notifyRaceWeekDb,
+                timeZone = TimeZone.getTimeZone(chatDTO.timeZone)
+            )
+        }
     }
 }

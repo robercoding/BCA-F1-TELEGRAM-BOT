@@ -1,6 +1,7 @@
 package common.utils
 
 import domain.model.NotifyRaceWeekSettled
+import domain.model.NotifyRaceWeekUnsettled
 import domain.model.dto.RaceDTO
 
 object FormatCaption {
@@ -43,7 +44,7 @@ object FormatCaption {
     }
 
     //TODO Add timezone to this format alarm
-    fun formatSetAlarm(notifyRaceWeekSettled: NotifyRaceWeekSettled): String {
+    fun formatSetNotifyRaceWeek(notifyRaceWeekSettled: NotifyRaceWeekSettled): String {
         val builder = StringBuilder()
         val notifyInDays = notifyRaceWeekSettled.notifyInDays
         val notifyInHours = notifyRaceWeekSettled.notifyInHours
@@ -94,7 +95,38 @@ object FormatCaption {
         )
 
         builder.append(" *in your actual timezone ${notifyRaceWeekSettled.timeZone.id}*")
+        return builder.toString()
+    }
 
+    fun formatUnsetNotifyRaceWeek(notifyRaceWeekUnsettled: NotifyRaceWeekUnsettled): String {
+        val builder = StringBuilder()
+        builder.append("Notify when it's race week has been deactivated")
+        val notifyRaceWeek = notifyRaceWeekUnsettled.notifyRaceWeek
+        val dayOfWeek = notifyRaceWeek.day.toDayOfWeek()
+        val everyHour = notifyRaceWeek.hour
+        val everyMinute = notifyRaceWeek.minute
+
+        builder.append("\n\nYour actual configuration is the next:")
+
+        builder.append(
+            "\n*Every $dayOfWeek at ${
+                String.format(
+                    "%02d",
+                    everyHour
+                )
+            }*"
+        )
+
+        builder.append(
+            "*:${
+                String.format(
+                    "%02d",
+                    everyMinute
+                )
+            }* "
+        )
+
+        builder.append("in your actual *timezone ${notifyRaceWeekUnsettled.timeZone.id}*")
         return builder.toString()
     }
 }

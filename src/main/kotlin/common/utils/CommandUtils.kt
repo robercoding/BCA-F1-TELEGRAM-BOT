@@ -24,7 +24,10 @@ fun String.getCommand(): String {
 }
 
 fun String.getCommandUntilWhiteSpace(): String {
-    return substring(indexOfFirst { it == '/' }, indexOfFirst { it.isWhitespace() } + 1)
+    val boolTest =
+        if (this.contains(' ')) indexOfFirst { it.isWhitespace() } + 1 else indexOfLast { it.isLetterOrDigit() } + 1
+
+    return substring(indexOfFirst { it == '/' }, boolTest)
         .filter { it.isLetter() || it == '/' }
 }
 

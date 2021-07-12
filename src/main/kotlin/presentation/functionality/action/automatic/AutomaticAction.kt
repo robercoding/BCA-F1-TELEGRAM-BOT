@@ -21,7 +21,22 @@ class AutomaticAction(
             val notifyRaceWeekSettled = notifyRaceWeekUseCase.setOnNotifyRaceWeek(bot, chat, notifyRaceWeek)
 
             val timerCaption =
-                FormatCaption.formatSetAlarm(notifyRaceWeekSettled)
+                FormatCaption.formatSetNotifyRaceWeek(notifyRaceWeekSettled)
+            BotOutcome.SendPhotoByUrl(
+                timerCaption,
+                "https://as.com/tikitakas/imagenes/2017/09/04/portada/1504556804_289726_1504557895_sumario_grande.jpg"
+            )
+        }
+    }
+
+    suspend fun unsetNotifyRaceWeek(chat: Chat): BotOutcome {
+        return withContext(Dispatchers.IO) {
+            println("enter unsetonnotifyraceweek use case")
+            val notifyRaceWeek = notifyRaceWeekUseCase.unsetOnNotifyRaceWeek(chat)
+            println("after return")
+
+            val timerCaption =
+                FormatCaption.formatUnsetNotifyRaceWeek(notifyRaceWeek)
             BotOutcome.SendPhotoByUrl(
                 timerCaption,
                 "https://as.com/tikitakas/imagenes/2017/09/04/portada/1504556804_289726_1504557895_sumario_grande.jpg"

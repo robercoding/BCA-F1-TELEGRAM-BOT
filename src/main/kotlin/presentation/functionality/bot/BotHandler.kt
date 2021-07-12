@@ -60,6 +60,7 @@ class BotHandler {
 
                     val command = text.getCommandUntilWhiteSpace()
 
+                    println("command: $command")
                     // TODO CONVERT THIS TO AN ENUM OR SEALED CLASS
                     when (command.toLowerCase()) {
                         "/alonso" -> botActions.sendMessage(chatId, "EL MAGIC FIAUUUUUUM ALPINEE!")
@@ -88,12 +89,21 @@ class BotHandler {
                         "/helpES" -> bot.sendHelp(message.chat.id, Idiom.ES)
                         "/helpEN" -> bot.sendHelp(message.chat.id, Idiom.EN)
                         "/chat" -> println(message.chat)
-                        "/setalarmraceweek" -> {
+                        "/setnotifyraceweek" -> {
                             handleAutomaticActions(
-                                AutomaticActionEvent.RemindRaceWeek(
+                                AutomaticActionEvent.SetNotifyRaceWeek(
                                     chatId,
                                     message.chat.toChat(),
                                     text.trimStartUntilCommand().removeCommand()
+                                )
+                            )
+                        }
+                        "/unsetnotifyraceweek" -> {
+                            println("entrar unset")
+                            handleAutomaticActions(
+                                AutomaticActionEvent.UnsetNotifyRaceWeek(
+                                    chatId,
+                                    message.chat.toChat()
                                 )
                             )
                         }
@@ -147,9 +157,10 @@ class BotHandler {
     private fun handleAutomaticActions(automaticActionEvent: AutomaticActionEvent) {
         val chatId: ChatId = automaticActionEvent.chatId
 
+
         scope.launch {
             when (automaticActionEvent) {
-                is AutomaticActionEvent.RemindRaceWeek -> {
+                is AutomaticActionEvent.SetNotifyRaceWeek -> {
                     val alarmRaceWeek = NotifyRaceWeekUtils.getNotifyRaceWeekTime(automaticActionEvent.alarmValues)
 
                     val botPhotoByUrl =
@@ -166,32 +177,17 @@ class BotHandler {
                     )
                 }
 
-                is AutomaticActionEvent.DisableRemindRaceWeek -> {
-                    stopTimer(chatId = automaticActionEvent.chatId)
+                is AutomaticActionEvent.UnsetNotifyRaceWeek -> {
+                    val botPhoto =
+                        automaticAction.unsetNotifyRaceWeek(automaticActionEvent.chat) as BotOutcome.SendPhotoByUrl
+                    bot.sendPhoto(
+                        chatId,
+                        botPhoto.photoUrl,
+                        botPhoto.message,
+                        ParseMode.MARKDOWN_V2
+                    )
                 }
             }
-        }
-    }
-
-    //TODO STOPTIMER SHOULD BE REMOVE FROM DB AND CANCEL IT
-    fun stopTimer(chatId: ChatId) {
-        var timerTask: TimerTask? = null
-        var timerIndex = -1
-        val chatIdLong = (chatId as ChatId.Id).id
-        timers.forEachIndexed { index, it ->
-            if (it.first == chatIdLong) {
-                timerIndex = index
-                timerTask = it.second
-                return@forEachIndexed
-            }
-        }
-
-        if (timerTask != null && timerIndex != -1) {
-            timerTask?.cancel()
-            timers.removeAt(timerIndex)
-            bot.sendMessage(chatId, "Se ha parado el recordatorio")
-        } else {
-            bot.sendMessage(chatId, "No tienes ningún recordatorio")
         }
     }
 
