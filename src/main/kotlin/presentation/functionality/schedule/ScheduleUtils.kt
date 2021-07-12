@@ -61,13 +61,13 @@ object ScheduleUtils {
         //If they're the same day and today's time is previous to alarm's time then. If not it will set for next week
         println("hour alarm $hour")
         println("hour now ${LocalDateTime.now().atZone(zoneId).hour}")
-        val nextAlarmTime = if (dayOfWeek == now.dayOfWeek && hour >= now.hour && minute > now.minute) {
-            println("for today")
-            now.withHour(hour).withMinute(minute).withSecond(0)
-        } else {
-            println("for next saturday")
-            now.with(TemporalAdjusters.next(dayOfWeek)).withHour(hour).withMinute(minute).withSecond(0)
-        }
+        val nextAlarmTime =
+            if (dayOfWeek == now.dayOfWeek && ((hour > now.hour) || (hour == now.hour && minute >= now.minute))) {
+                println("for today")
+                now.withHour(hour).withMinute(minute).withSecond(0)
+            } else {
+                now.with(TemporalAdjusters.next(dayOfWeek)).withHour(hour).withMinute(minute).withSecond(0)
+            }
         return nextAlarmTime.toInstant().toEpochMilli()
     }
 

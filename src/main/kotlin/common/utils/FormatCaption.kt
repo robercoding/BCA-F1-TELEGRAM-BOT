@@ -60,7 +60,7 @@ object FormatCaption {
         }
 
         if (notifyInHours > 0) {
-            builder.append("\t *$notifyInHours ${if (notifyInHours > 1) "hours" else "hour"}*")
+            builder.append("*$notifyInHours ${if (notifyInHours > 1) "hours" else "hour"}*")
             if (notifyInMinutes > 0) builder.append(" *and* ")
         }
 
