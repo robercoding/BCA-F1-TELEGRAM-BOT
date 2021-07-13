@@ -11,6 +11,7 @@ import data.repository.chat.ChatRepository
 import data.repository.notifyraceweek.NotifyRaceWeekRepository
 import data.repository.race.RaceRepository
 import domain.model.*
+import domain.model.dao.defaultTimeZone
 import domain.model.dto.ChatDTO
 import domain.model.dto.RaceDTO
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -32,8 +33,9 @@ class NotifyRaceWeekUseCase(
         notifyRaceWeek.id = chatDTO.notifyRaceWeek.id
         val notifyRaceWeekDb = notifyRaceWeekRepository.update(notifyRaceWeek) ?: throw ErrorUpdatingNotifyRaceWeek()
 
-        val timerTaskAndNotifyRaceWeek = scheduleNotifyRaceWeek(bot, chatDTO, notifyRaceWeekDb)
+        val timerTaskAndNotifyRaceWeek = scheduleNotifyRaceWeek(bot, chatDTO, notifyRaceWeekDb, chatDTO.timeZone)
         mapTimers.toMutableMap()[chatDTO.id] = timerTaskAndNotifyRaceWeek.timerTask
+
         return timerTaskAndNotifyRaceWeek.notifyRaceWeekSettled
     }
 
@@ -45,9 +47,10 @@ class NotifyRaceWeekUseCase(
     private fun scheduleNotifyRaceWeek(
         bot: Bot,
         chat: ChatDTO,
-        notifyRaceWeek: NotifyRaceWeek
+        notifyRaceWeek: NotifyRaceWeek,
+        timeZone: String?
     ): TimerTaskAndNotifyRaceWeek {
-        return ScheduleUtils.getTimerTask(notifyRaceWeek) {
+        return ScheduleUtils.getTimerTask(notifyRaceWeek, timeZone) {
             val answer = isRaceWeek()
             if (answer is Answer.Yes) {
                 notifyRaceWeek(bot, chat, answer.data)
@@ -68,7 +71,8 @@ class NotifyRaceWeekUseCase(
     }
 
     private fun notifyRaceWeek(bot: Bot, chat: ChatDTO, race: RaceDTO) {
-        val caption = FormatCaption.formatRaceDetails(race, chat.timeZone)
+        val timeZone = chat.timeZone ?: defaultTimeZone
+        val caption = FormatCaption.formatRaceDetails(race, timeZone)
         bot.sendPhoto(
             chatId = chat.toChatId(),
             "",

@@ -9,6 +9,6 @@ data class ChatDTO(
     val username: String,
     val title: String,
     val description: String,
-    val timeZone: String,
+    val timeZone: String?,
     val type: CHAT_TYPE,
 )

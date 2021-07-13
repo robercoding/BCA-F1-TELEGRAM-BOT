@@ -4,8 +4,9 @@ import common.utils.toDayOfWeek
 import domain.model.NotifyRaceWeek
 import domain.model.NotifyRaceWeekSettled
 import domain.model.TimerTaskAndNotifyRaceWeek
+import domain.model.dao.defaultTimeZone
 import java.time.DayOfWeek
-import java.time.LocalDate
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
@@ -16,14 +17,19 @@ object ScheduleUtils {
 
     private const val timerName = "RaceWeek"
     private const val weekInMilliseconds = 604800000L
-    private var zoneId = ZoneId.of("Europe/Madrid")
 
-    fun getTimerTask(notifyRaceWeek: NotifyRaceWeek, notifyRace: () -> Unit): TimerTaskAndNotifyRaceWeek {
+    fun getTimerTask(
+        notifyRaceWeek: NotifyRaceWeek,
+        timeZone: String?,
+        notifyRace: () -> Unit
+    ): TimerTaskAndNotifyRaceWeek {
         val dayOfWeek = notifyRaceWeek.day.toDayOfWeek()
         val hour = notifyRaceWeek.hour
         val minute = notifyRaceWeek.minute
+        val zoneId = timeZone?.let { ZoneId.of(it) } ?: let { ZoneId.of(defaultTimeZone) }
+        println("zone id is ${zoneId.id}")
 
-        val delay = getDelay(dayOfWeek, hour, minute)
+        val delay = getDelay(dayOfWeek, hour, minute, zoneId)
         val period = weekInMilliseconds
 
         val timerTask = Timer(timerName, true).scheduleAtFixedRate(delay, period) {
@@ -42,26 +48,24 @@ object ScheduleUtils {
             everyDayOfWeek = dayOfWeek,
             everyHour = hour,
             everyMinute = minute,
-            TimeZone.getTimeZone(zoneId)
+            timeZone
         )
 
         return TimerTaskAndNotifyRaceWeek(timerTask, alarmSettled)
     }
 
-    private fun getDayOfWeek(day: Int): DayOfWeek = DayOfWeek.values()[day - 1]
-
-    private fun getDelay(dayOfWeek: DayOfWeek, hour: Int, minute: Int): Long {
-        val nextAlarmEpoch = getNextAlarmEpoch(dayOfWeek, hour, minute)
-        val nowEpoch = getEpochNow()
+    private fun getDelay(dayOfWeek: DayOfWeek, hour: Int, minute: Int, zoneId: ZoneId): Long {
+        val nextAlarmEpoch = getNextTimeAlarmEpoch(dayOfWeek, hour, minute, zoneId)
+        val nowEpoch = getEpochNow(zoneId)
         return nextAlarmEpoch - nowEpoch
     }
 
-    private fun getNextAlarmEpoch(dayOfWeek: DayOfWeek, hour: Int, minute: Int): Long {
-        val now = LocalDateTime.now().atZone(zoneId)
+    private fun getNextTimeAlarmEpoch(dayOfWeek: DayOfWeek, hour: Int, minute: Int, zoneId: ZoneId): Long {
+        val now = LocalDateTime.now(zoneId)
 
         //If they're the same day and today's time is previous to alarm's time then. If not it will set for next week
         println("hour alarm $hour")
-        println("hour now ${LocalDateTime.now().atZone(zoneId).hour}")
+        println("hour now ${LocalDateTime.now(zoneId).hour}")
         val nextAlarmTime =
             if (dayOfWeek == now.dayOfWeek && ((hour > now.hour) || (hour == now.hour && minute >= now.minute))) {
                 println("for today")
@@ -69,29 +73,12 @@ object ScheduleUtils {
             } else {
                 now.with(TemporalAdjusters.next(dayOfWeek)).withHour(hour).withMinute(minute).withSecond(0)
             }
-        return nextAlarmTime.toInstant().toEpochMilli()
+        val zoneOffset = zoneId.rules.getOffset(Instant.now())
+        return nextAlarmTime.toInstant(zoneOffset).toEpochMilli()
     }
 
-    private fun getEpochNow(): Long {
-        return LocalDateTime.now().atZone(zoneId).toInstant().toEpochMilli()
+    private fun getEpochNow(zoneId: ZoneId): Long {
+        val zoneOffset = zoneId.rules.getOffset(Instant.now())
+        return LocalDateTime.now(zoneId).toInstant(zoneOffset).toEpochMilli()
     }
-
-    fun isTodayThursdayOrGreater(): Boolean {
-        val day = getDayOfTheWeek()
-        return day == DAYS.TUESDAY.name || day == DAYS.FRIDAY.name || day == DAYS.SATURDAY.name || day == DAYS.SUNDAY.name
-    }
-
-    private fun getDayOfTheWeek(): String {
-        return LocalDate.now().dayOfWeek.name
-    }
-}
-
-enum class DAYS_OF_WEEK {
-    MONDAY,
-    TUESDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-    SATURDAY,
-    SUNDAY
 }

@@ -30,7 +30,7 @@ class ChatRepositoryImpl : ChatRepository {
                 this.description = chat.description ?: ""
                 this.username = chat.username ?: ""
                 this.type = chat.type.toString()
-                this.timeZone = chat.timeZone?.toString() ?: "Europe/Madrid"
+                this.timeZone = chat.timeZone?.toString()
                 this.notifyRaceWeek = notifyRaceWeekEntity
             }.toChatDTO()
         }

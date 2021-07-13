@@ -1,7 +1,6 @@
 package domain.model
 
 import java.time.DayOfWeek
-import java.util.*
 
 data class NotifyRaceWeekSettled(
     val notifyInDays: Int,
@@ -10,5 +9,5 @@ data class NotifyRaceWeekSettled(
     val everyDayOfWeek: DayOfWeek,
     val everyHour: Int,
     val everyMinute: Int,
-    val timeZone: TimeZone
+    val timeZone: String?
 )

@@ -2,6 +2,7 @@ package common.utils
 
 import domain.model.NotifyRaceWeekSettled
 import domain.model.NotifyRaceWeekUnsettled
+import domain.model.dao.defaultTimeZone
 import domain.model.dto.RaceDTO
 
 object FormatCaption {
@@ -94,7 +95,13 @@ object FormatCaption {
             }*"
         )
 
-        builder.append(" *in your actual timezone ${notifyRaceWeekSettled.timeZone.id}*")
+        if (notifyRaceWeekSettled.timeZone != null) {
+            builder.append(" *in your actual timezone ${notifyRaceWeekSettled.timeZone}*")
+        } else {
+            builder.append(" *in the default timezone $defaultTimeZone* ")
+            builder.append("\n\nIf you want to change your timezone please send /setTzCountry CountryName")
+            builder.append("\nExample: /setTzCountry Spain")
+        }
         return builder.toString()
     }
 
