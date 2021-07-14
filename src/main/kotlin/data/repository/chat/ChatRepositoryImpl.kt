@@ -1,5 +1,6 @@
 package data.repository.chat
 
+import domain.interfaces.ChatRepository
 import domain.model.Chat
 import domain.model.dao.*
 import domain.model.dto.ChatDTO

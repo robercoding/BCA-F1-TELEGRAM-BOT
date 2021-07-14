@@ -1,6 +1,5 @@
-package data.repository.calendarraceyear
+package domain.interfaces
 
-import data.Repository
 import domain.model.dto.CalendarRaceYearDTO
 
 interface CalendarRaceYearRepository : Repository<CalendarRaceYearDTO> {

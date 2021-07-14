@@ -1,6 +1,6 @@
 package data.repository.race
 
-import data.Repository
+import domain.interfaces.Repository
 import domain.model.dto.RaceDTO
 
 interface RaceRepository : Repository<RaceDTO> {

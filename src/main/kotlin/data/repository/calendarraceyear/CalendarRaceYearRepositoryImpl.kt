@@ -1,5 +1,6 @@
 package data.repository.calendarraceyear
 
+import domain.interfaces.CalendarRaceYearRepository
 import domain.model.dao.CalendarRaceYearEntity
 import domain.model.dao.CalendarRaceYearTable
 import domain.model.dao.toCalendarRaceYearDTO

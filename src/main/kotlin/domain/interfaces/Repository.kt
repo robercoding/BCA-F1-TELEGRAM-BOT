@@ -1,4 +1,4 @@
-package data
+package domain.interfaces
 
 interface Repository<T> {
     fun findById(id: Long): T?

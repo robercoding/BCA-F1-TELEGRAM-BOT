@@ -7,9 +7,9 @@ import common.utils.ChatNotifyRaceWeekDoesntExist
 import common.utils.ErrorUpdatingNotifyRaceWeek
 import common.utils.FormatCaption
 import config.F1Config
-import data.repository.chat.ChatRepository
-import data.repository.notifyraceweek.NotifyRaceWeekRepository
 import data.repository.race.RaceRepository
+import domain.interfaces.ChatRepository
+import domain.interfaces.NotifyRaceWeekRepository
 import domain.model.*
 import domain.model.dao.defaultTimeZone
 import domain.model.dto.ChatDTO

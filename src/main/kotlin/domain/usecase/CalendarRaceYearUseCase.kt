@@ -1,7 +1,7 @@
 package domain.usecase
 
 import common.utils.CalendarRaceYearNotFound
-import data.repository.calendarraceyear.CalendarRaceYearRepository
+import domain.interfaces.CalendarRaceYearRepository
 import domain.model.dto.CalendarRaceYearDTO
 
 //TODO ADD CalendarRaceYearRepository and add functions from ActioNRepository for calendarRaceYear (Maybe there's only 1 function that's already added here "getCalendarRace")

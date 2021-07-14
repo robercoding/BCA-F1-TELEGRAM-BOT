@@ -1,6 +1,5 @@
-package data.repository.notifyraceweek
+package domain.interfaces
 
-import data.Repository
 import domain.model.NotifyRaceWeek
 import domain.model.dao.NotifyRaceWeekEntity
 

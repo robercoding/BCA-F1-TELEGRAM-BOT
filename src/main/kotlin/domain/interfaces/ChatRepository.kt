@@ -1,6 +1,5 @@
-package data.repository.chat
+package domain.interfaces
 
-import data.Repository
 import domain.model.Chat
 import domain.model.dao.NotifyRaceWeekEntity
 import domain.model.dto.ChatDTO
